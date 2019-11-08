@@ -1,6 +1,6 @@
 $(function () {
     new pdContentUI(options).init();
-    getCorrectImg(imgs, currentColor);
+    buildHTML(imgs, currentColor);
 
     $(".js-targetTop").click(function () {
         var id = $(this).data("target");
@@ -77,7 +77,6 @@ pdContentUI.prototype.activeTargetSlide = function (colorVal) {
         if ($(this).data('color') === colorVal) {
             $(this).addClass('active');
             // console.log($(this).html());
-            $(this).find(".pdSlide").slick('refresh');
         }
     });
 }
@@ -156,81 +155,20 @@ pdContentUI.prototype.fillHiddenInput = function (color, size, pdnumber) {
 /* end main interaction*/
 
 // 判斷圖存在與否
-function getCorrectImg(imgarray, currentColor) {
-
-    var correctImgs = [];
-    var imgsLength = imgarray.length;
-    var loadIdx = 0;
-
-    for (var i = 0; i < imgsLength; i++) {
-        correctImgs.push({
-            "color": imgs[i].color,
-            "img": imgs[i].img,
-            "imgidx": imgs[i].imgIdx
-        });
-    }
-    rearrangeImgarray(correctImgs, currentColor);
-
-}
-
-// 重新安排圖片物件格式
-function rearrangeImgarray(imgarray, currentColor) {
-    var newImgarray = {};
-    var colorArray = [];
-    imgarray.forEach(function (imgobj) {
-        if (colorArray.indexOf(imgobj.color) === -1) {
-            colorArray.push(imgobj.color);
-            // console.log('new color ' + imgobj.color);
-            // console.log('img index ' + imgobj.imgidx);
-            newImgarray[imgobj.color] = {};
-            newImgarray[imgobj.color][imgobj.imgidx] = imgobj.img;
-        } else {
-            if (newImgarray[imgobj.color][imgobj.imgidx] === undefined) {
-                // console.log('not yet has this img');
-                newImgarray[imgobj.color][imgobj.imgidx] = imgobj.img;
-            } else {
-                newImgarray[imgobj.color][imgobj.imgidx] = imgobj.img;
-                // console.log('had this img ' + newImgarray[imgobj.color][imgobj.imgidx]);
-            }
-
-        }
-    });
-    // console.log(newImgarray.length);
-    buildHTML(newImgarray, currentColor);
-    // console.log('rearrange image array ' + JSON.stringify(newImgarray));
-}
-
 function buildHTML(imgs, color) {
     var finalHTML = '';
     var currentColor = color;
-    for (var colorkey in imgs) {
-        var imgGroupHTML = '<div class="pdcnt_imgs clearfix" data-color="' + colorkey + '">';
-        var mainImgHTML = '<div class="pdSlide">';
-
-        for (colorimg in imgs[colorkey]) {
-            // console.log('000 ' + imgs[colorkey][colorimg]);
-
-            if (imgs[colorkey][colorimg] !== undefined) { //如果有大圖
-                mainImgHTML = mainImgHTML + '<a><img src="' + imgs[colorkey][colorimg] + '" alt=""></a>';
-            } else {
-                // console.log('no img');
-            }
-
-        };
-
-        mainImgHTML = mainImgHTML + '</div>';
-        imgGroupHTML = imgGroupHTML + mainImgHTML + '</div>';
+    for (var i = 0; i < imgs.length; i++) {
+        var imgGroupHTML = '<div class="pdcnt_imgs clearfix" data-color="' + imgs[i].color + '">'+
+                                '<div class="pdSlide">'+ 
+                                    '<a><img src="' + imgs[i].img + '" alt=""></a>'+ 
+                                '</div>'+ 
+                            '</div>';
         finalHTML = finalHTML + imgGroupHTML;
-        // console.log('final html: ' + finalHTML);
     }
     finalHTML = finalHTML + "</div>";
+    console.log(finalHTML);
     $('.pdcnt_top_left').append(finalHTML);
-    $(".pdSlide").slick({
-        arrows: false,
-        dots: true,
-        autoplay: true,
-        autoplaySpeed: 1500
-    });
 
     try {
         $('.pdcnt_color a').each(function () {
